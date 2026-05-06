@@ -120,36 +120,31 @@ public class TicTacToe {
         }
     }
 
-    // --- NEW: UC9 Check Winning Condition ---[cite: 12]
+    // UC9: Check Winning Condition
     public static boolean checkWin(char[][] board, char symbol) {
-        // Loop-Based Checks for Rows and Columns[cite: 12]
         for (int i = 0; i < 3; i++) {
-            // Check all 3 rows[cite: 12]
-            if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
-                return true; 
-            }
-            // Check all 3 columns[cite: 12]
-            if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) {
-                return true; 
-            }
+            if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) return true; 
+            if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) return true; 
         }
+        if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) return true;
+        if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) return true;
         
-        // Logical Conditions for Diagonals[cite: 12]
-        // Check main diagonal (top-left to bottom-right)
-        if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
-            return true;
-        }
-        // Check anti-diagonal (top-right to bottom-left)
-        if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
-            return true;
-        }
-        
-        return false; // If no patterns match, no win yet[cite: 12]
+        return false; 
     }
 
-    // UC10 (Coming next): Dummy checkDraw
+    // --- NEW: UC10 Detect Draw Condition ---
     public static boolean checkDraw(char[][] board) {
-        return false; 
+        // Loop through the entire 2D array
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                // If we find even one empty spot, the board is not full
+                if (board[row][col] == '-') {
+                    return false; 
+                }
+            }
+        }
+        // If the loops finish and no '-' was found, the board is full!
+        return true; 
     }
 
     // Switch Turn logic
@@ -161,7 +156,7 @@ public class TicTacToe {
         }
     }
 
-    // UC8: Main Game Loop
+    // Main Game Loop
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         char[][] board = new char[3][3];
@@ -188,6 +183,7 @@ public class TicTacToe {
                 }
             }
             
+            // Draw check happens here, correctly stopping the loop if full!
             if (checkDraw(board)) {
                 boardFull = true;
                 System.out.println("It's a Draw! The board is full.");
