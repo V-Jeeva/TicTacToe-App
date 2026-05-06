@@ -39,16 +39,16 @@ public class TicTacToe {
             currentPlayer = "Human";
             playerSymbol = 'X';
             computerSymbol = 'O';
-            System.out.println("Result: Human won the toss! You will play first as 'X'. Computer is 'O'.");
+            System.out.println("Result: Human won the toss! You will play first as 'X'. Computer is 'O'.\n");
         } else {
             currentPlayer = "Computer";
             computerSymbol = 'X';
             playerSymbol = 'O';
-            System.out.println("Result: Computer won the toss! Computer will play first as 'X'. You are 'O'.");
+            System.out.println("Result: Computer won the toss! Computer will play first as 'X'. You are 'O'.\n");
         }
     }
 
-    // UC3: Accept User Slot Input (1-9)
+    // UC3: Accept User Slot Input
     public static int getUserInput(Scanner scanner) {
         System.out.print("Enter a slot number (1-9): ");
         return scanner.nextInt(); 
@@ -62,60 +62,82 @@ public class TicTacToe {
         return new int[]{row, col}; 
     }
 
-    // UC5: Validate User Move
+    // UC5: Validate User Move (Refactored for Logic Reuse)
     public static boolean isValidMove(char[][] board, int row, int col) {
+        // Ensure the move is within bounds and the cell is empty
         if (row >= 0 && row <= 2 && col >= 0 && col <= 2) {
-            if (board[row][col] == '-') {
-                return true; 
-            } else {
-                System.out.println("Invalid Move: That slot is already taken! Try again.");
-                return false; 
-            }
-        } else {
-            System.out.println("Invalid Move: Slot out of bounds! Please enter a number between 1 and 9.");
-            return false; 
+            return board[row][col] == '-'; 
         }
+        return false; 
     }
 
     // UC6: Place Move on Board
     public static void placeMove(char[][] board, int row, int col, char symbol) {
-        // Update the board array with the given symbol[cite: 11]
         board[row][col] = symbol;
+    }
+
+    // --- NEW: Refactored Human Turn ---
+    public static void humanTurn(Scanner scanner, char[][] board) {
+        boolean valid = false;
+        while (!valid) {
+            int chosenSlot = getUserInput(scanner);
+            int[] indices = convertSlotToIndices(chosenSlot);
+            int row = indices[0];
+            int col = indices[1];
+            
+            // Using the shared validation logic
+            if (isValidMove(board, row, col)) {
+                System.out.println("Move accepted! Placing your symbol...");
+                placeMove(board, row, col, playerSymbol); 
+                printBoard(board);
+                valid = true; 
+            } else {
+                // We handle the error printing here now, so the computer can fail silently!
+                System.out.println("Invalid Move: Out of bounds or slot already taken! Try again.\n");
+            }
+        }
+    }
+
+    // --- NEW: UC7 Computer Makes a Random Move ---[cite: 12]
+    public static void makeComputerMove(char[][] board) {
+        Random random = new Random();
+        boolean valid = false;
+        
+        System.out.println("Computer is thinking...");
+        
+        // Loop Until Valid[cite: 12]
+        while (!valid) {
+            // Generate random slot 1–9[cite: 12]
+            int chosenSlot = random.nextInt(9) + 1; 
+            int[] indices = convertSlotToIndices(chosenSlot);
+            int row = indices[0];
+            int col = indices[1];
+            
+            // Logic Reuse: Ensure move validity[cite: 12]
+            if (isValidMove(board, row, col)) {
+                System.out.println("Computer selected slot: " + chosenSlot);
+                placeMove(board, row, col, computerSymbol);
+                printBoard(board);
+                valid = true; 
+            }
+        }
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        // Setup Board
         char[][] board = new char[3][3];
+        
         initializeBoard(board);
         printBoard(board);
-        
         tossToDecideFirst();
 
-        // Testing UC6 integration
+        // Testing UC7: Let's do a sequence of two turns to prove both players can move!
         if (currentPlayer.equals("Human")) {
-            boolean valid = false;
-            
-            while (!valid) {
-                int chosenSlot = getUserInput(scanner);
-                int[] indices = convertSlotToIndices(chosenSlot);
-                int row = indices[0];
-                int col = indices[1];
-                
-                // If the move is valid, place the symbol and update the board[cite: 11]
-                if (isValidMove(board, row, col)) {
-                    System.out.println("Move accepted! Placing your symbol...");
-                    
-                    // Call our new reusable method[cite: 11]
-                    placeMove(board, row, col, playerSymbol); 
-                    
-                    printBoard(board);
-                    valid = true; 
-                }
-            }
+            humanTurn(scanner, board);
+            makeComputerMove(board); // Computer responds[cite: 12]
         } else {
-            System.out.println("Computer is thinking...");
+            makeComputerMove(board); // Computer goes first[cite: 12]
+            humanTurn(scanner, board);
         }
 
         scanner.close();
