@@ -1,5 +1,5 @@
 import java.util.Random;
-import java.util.Scanner; // Imported for UC3
+import java.util.Scanner;
 
 public class TicTacToe {
     
@@ -48,17 +48,27 @@ public class TicTacToe {
         }
     }
 
-    // UC3: Accept User Slot Input (1-9)[cite: 10]
+    // UC3: Accept User Slot Input (1-9)
     public static int getUserInput(Scanner scanner) {
         System.out.print("Enter a slot number (1-9): ");
-        // Read integer input from the user[cite: 10]
         int slot = scanner.nextInt(); 
-        // Return the slot value back to the game logic[cite: 10]
         return slot; 
     }
 
+    // UC4: Convert Slot Number (1–9) to Board Index (Row, Column)[cite: 10]
+    public static int[] convertSlotToIndices(int slot) {
+        // Adjust to zero-based indexing[cite: 10]
+        int index = slot - 1; 
+        
+        // Mathematical Mapping using Division and Modulo[cite: 10]
+        int row = index / 3;
+        int col = index % 3;
+        
+        // Return the row & column generated as an array[cite: 10]
+        return new int[]{row, col}; 
+    }
+
     public static void main(String[] args) {
-        // Create scanner for user input
         Scanner scanner = new Scanner(System.in);
 
         // UC1
@@ -69,15 +79,17 @@ public class TicTacToe {
         // UC2
         tossToDecideFirst();
 
-        // Testing UC3: Ask for input just to prove it works!
+        // Testing UC3 & UC4 integration
         if (currentPlayer.equals("Human")) {
             int chosenSlot = getUserInput(scanner);
+            int[] indices = convertSlotToIndices(chosenSlot);
+            
             System.out.println("Awesome, you selected slot: " + chosenSlot);
+            System.out.println("This converts to -> Row: " + indices[0] + ", Column: " + indices[1]);
         } else {
             System.out.println("Computer is thinking...");
         }
 
-        // Close scanner at the very end of the program
         scanner.close();
     }
 }
