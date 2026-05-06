@@ -54,7 +54,7 @@ public class TicTacToe {
         return scanner.nextInt(); 
     }
 
-    // UC4: Convert Slot Number (1–9) to Board Index
+    // UC4: Convert Slot Number to Board Index
     public static int[] convertSlotToIndices(int slot) {
         int index = slot - 1; 
         int row = index / 3;
@@ -62,21 +62,25 @@ public class TicTacToe {
         return new int[]{row, col}; 
     }
 
-    // UC5: Validate User Move[cite: 10]
+    // UC5: Validate User Move
     public static boolean isValidMove(char[][] board, int row, int col) {
-        // Ensure the move is within bounds (0-2)[cite: 10]
         if (row >= 0 && row <= 2 && col >= 0 && col <= 2) {
-            // Ensure the cell is completely empty[cite: 10]
             if (board[row][col] == '-') {
-                return true; // Move accepted[cite: 10]
+                return true; 
             } else {
                 System.out.println("Invalid Move: That slot is already taken! Try again.");
-                return false; // Move rejected[cite: 10]
+                return false; 
             }
         } else {
             System.out.println("Invalid Move: Slot out of bounds! Please enter a number between 1 and 9.");
-            return false; // Move rejected[cite: 10]
+            return false; 
         }
+    }
+
+    // UC6: Place Move on Board
+    public static void placeMove(char[][] board, int row, int col, char symbol) {
+        // Update the board array with the given symbol[cite: 11]
+        board[row][col] = symbol;
     }
 
     public static void main(String[] args) {
@@ -85,30 +89,29 @@ public class TicTacToe {
         // Setup Board
         char[][] board = new char[3][3];
         initializeBoard(board);
-        
-        // Let's artificially fill a spot just to test our validation!
-        board[0][0] = 'X'; // Slot 1 is now taken
         printBoard(board);
         
         tossToDecideFirst();
 
-        // Testing UC5 integration with a while loop
+        // Testing UC6 integration
         if (currentPlayer.equals("Human")) {
             boolean valid = false;
             
-            // Keep asking until they give us a good move
             while (!valid) {
                 int chosenSlot = getUserInput(scanner);
                 int[] indices = convertSlotToIndices(chosenSlot);
                 int row = indices[0];
                 int col = indices[1];
                 
-                // Perform validation[cite: 10]
+                // If the move is valid, place the symbol and update the board[cite: 11]
                 if (isValidMove(board, row, col)) {
                     System.out.println("Move accepted! Placing your symbol...");
-                    board[row][col] = playerSymbol; // Place the symbol
+                    
+                    // Call our new reusable method[cite: 11]
+                    placeMove(board, row, col, playerSymbol); 
+                    
                     printBoard(board);
-                    valid = true; // Exit the loop
+                    valid = true; 
                 }
             }
         } else {
