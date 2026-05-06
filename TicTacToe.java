@@ -8,7 +8,7 @@ public class TicTacToe {
     static char playerSymbol;
     static char computerSymbol;
     
-    // Game State Flags for the Loop
+    // Game State Flags
     static boolean gameWon = false;
     static boolean boardFull = false;
     
@@ -52,13 +52,13 @@ public class TicTacToe {
         }
     }
 
-    // UC3: Accept User Slot Input
+    // UC3: Accept User Input
     public static int getUserInput(Scanner scanner) {
         System.out.print("Enter a slot number (1-9): ");
         return scanner.nextInt(); 
     }
 
-    // UC4: Convert Slot Number to Board Index
+    // UC4: Convert Slot Number to Indices
     public static int[] convertSlotToIndices(int slot) {
         int index = slot - 1; 
         int row = index / 3;
@@ -74,7 +74,7 @@ public class TicTacToe {
         return false; 
     }
 
-    // UC6: Place Move on Board
+    // UC6: Place Move
     public static void placeMove(char[][] board, int row, int col, char symbol) {
         board[row][col] = symbol;
     }
@@ -103,7 +103,6 @@ public class TicTacToe {
     public static void makeComputerMove(char[][] board) {
         Random random = new Random();
         boolean valid = false;
-        
         System.out.println("Computer is thinking...");
         
         while (!valid) {
@@ -121,17 +120,39 @@ public class TicTacToe {
         }
     }
 
-    // --- NEW: Dummy methods for Win/Draw checking ---
-    // (We will build the real logic for these in UC9 and UC10!)
+    // --- NEW: UC9 Check Winning Condition ---[cite: 12]
     public static boolean checkWin(char[][] board, char symbol) {
-        return false; // Dummy return
+        // Loop-Based Checks for Rows and Columns[cite: 12]
+        for (int i = 0; i < 3; i++) {
+            // Check all 3 rows[cite: 12]
+            if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
+                return true; 
+            }
+            // Check all 3 columns[cite: 12]
+            if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) {
+                return true; 
+            }
+        }
+        
+        // Logical Conditions for Diagonals[cite: 12]
+        // Check main diagonal (top-left to bottom-right)
+        if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
+            return true;
+        }
+        // Check anti-diagonal (top-right to bottom-left)
+        if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
+            return true;
+        }
+        
+        return false; // If no patterns match, no win yet[cite: 12]
     }
 
+    // UC10 (Coming next): Dummy checkDraw
     public static boolean checkDraw(char[][] board) {
-        return false; // Dummy return
+        return false; 
     }
 
-    // --- NEW: Turn Switching logic ---
+    // Switch Turn logic
     public static void switchTurn() {
         if (currentPlayer.equals("Human")) {
             currentPlayer = "Computer";
@@ -140,6 +161,7 @@ public class TicTacToe {
         }
     }
 
+    // UC8: Main Game Loop
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         char[][] board = new char[3][3];
@@ -148,24 +170,17 @@ public class TicTacToe {
         printBoard(board);
         tossToDecideFirst();
 
-        // --- NEW: UC8 Continuous Turn-Based Game Loop ---
-        // Loop continues until a win or draw is detected
         while (!gameWon && !boardFull) {
             
-            // 1. Take the turn
             if (currentPlayer.equals("Human")) {
                 humanTurn(scanner, board);
-                
-                // Check if Human won or drew
                 if (checkWin(board, playerSymbol)) {
                     gameWon = true;
-                    System.out.println("Congratulations! You won!");
+                    System.out.println("Congratulations! You won the game!");
                     break;
                 }
             } else {
                 makeComputerMove(board);
-                
-                // Check if Computer won or drew
                 if (checkWin(board, computerSymbol)) {
                     gameWon = true;
                     System.out.println("Game Over! The Computer won!");
@@ -173,14 +188,12 @@ public class TicTacToe {
                 }
             }
             
-            // Check for a draw after ANY move
             if (checkDraw(board)) {
                 boardFull = true;
                 System.out.println("It's a Draw! The board is full.");
                 break;
             }
             
-            // 2. Switch Turn if no win/draw
             switchTurn();
         }
         
