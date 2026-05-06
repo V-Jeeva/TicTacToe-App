@@ -8,6 +8,10 @@ public class TicTacToe {
     static char playerSymbol;
     static char computerSymbol;
     
+    // Game State Flags for the Loop
+    static boolean gameWon = false;
+    static boolean boardFull = false;
+    
     // UC1: Initialize the board
     public static void initializeBoard(char[][] board) {
         for (int row = 0; row < 3; row++) {
@@ -62,9 +66,8 @@ public class TicTacToe {
         return new int[]{row, col}; 
     }
 
-    // UC5: Validate User Move (Refactored for Logic Reuse)
+    // UC5: Validate Move
     public static boolean isValidMove(char[][] board, int row, int col) {
-        // Ensure the move is within bounds and the cell is empty
         if (row >= 0 && row <= 2 && col >= 0 && col <= 2) {
             return board[row][col] == '-'; 
         }
@@ -76,7 +79,7 @@ public class TicTacToe {
         board[row][col] = symbol;
     }
 
-    // --- NEW: Refactored Human Turn ---
+    // Human Turn Logic
     public static void humanTurn(Scanner scanner, char[][] board) {
         boolean valid = false;
         while (!valid) {
@@ -85,41 +88,55 @@ public class TicTacToe {
             int row = indices[0];
             int col = indices[1];
             
-            // Using the shared validation logic
             if (isValidMove(board, row, col)) {
                 System.out.println("Move accepted! Placing your symbol...");
                 placeMove(board, row, col, playerSymbol); 
                 printBoard(board);
                 valid = true; 
             } else {
-                // We handle the error printing here now, so the computer can fail silently!
                 System.out.println("Invalid Move: Out of bounds or slot already taken! Try again.\n");
             }
         }
     }
 
-    // --- NEW: UC7 Computer Makes a Random Move ---[cite: 12]
+    // UC7: Computer Turn Logic
     public static void makeComputerMove(char[][] board) {
         Random random = new Random();
         boolean valid = false;
         
         System.out.println("Computer is thinking...");
         
-        // Loop Until Valid[cite: 12]
         while (!valid) {
-            // Generate random slot 1–9[cite: 12]
             int chosenSlot = random.nextInt(9) + 1; 
             int[] indices = convertSlotToIndices(chosenSlot);
             int row = indices[0];
             int col = indices[1];
             
-            // Logic Reuse: Ensure move validity[cite: 12]
             if (isValidMove(board, row, col)) {
                 System.out.println("Computer selected slot: " + chosenSlot);
                 placeMove(board, row, col, computerSymbol);
                 printBoard(board);
                 valid = true; 
             }
+        }
+    }
+
+    // --- NEW: Dummy methods for Win/Draw checking ---
+    // (We will build the real logic for these in UC9 and UC10!)
+    public static boolean checkWin(char[][] board, char symbol) {
+        return false; // Dummy return
+    }
+
+    public static boolean checkDraw(char[][] board) {
+        return false; // Dummy return
+    }
+
+    // --- NEW: Turn Switching logic ---
+    public static void switchTurn() {
+        if (currentPlayer.equals("Human")) {
+            currentPlayer = "Computer";
+        } else {
+            currentPlayer = "Human";
         }
     }
 
@@ -131,15 +148,43 @@ public class TicTacToe {
         printBoard(board);
         tossToDecideFirst();
 
-        // Testing UC7: Let's do a sequence of two turns to prove both players can move!
-        if (currentPlayer.equals("Human")) {
-            humanTurn(scanner, board);
-            makeComputerMove(board); // Computer responds[cite: 12]
-        } else {
-            makeComputerMove(board); // Computer goes first[cite: 12]
-            humanTurn(scanner, board);
+        // --- NEW: UC8 Continuous Turn-Based Game Loop ---
+        // Loop continues until a win or draw is detected
+        while (!gameWon && !boardFull) {
+            
+            // 1. Take the turn
+            if (currentPlayer.equals("Human")) {
+                humanTurn(scanner, board);
+                
+                // Check if Human won or drew
+                if (checkWin(board, playerSymbol)) {
+                    gameWon = true;
+                    System.out.println("Congratulations! You won!");
+                    break;
+                }
+            } else {
+                makeComputerMove(board);
+                
+                // Check if Computer won or drew
+                if (checkWin(board, computerSymbol)) {
+                    gameWon = true;
+                    System.out.println("Game Over! The Computer won!");
+                    break;
+                }
+            }
+            
+            // Check for a draw after ANY move
+            if (checkDraw(board)) {
+                boardFull = true;
+                System.out.println("It's a Draw! The board is full.");
+                break;
+            }
+            
+            // 2. Switch Turn if no win/draw
+            switchTurn();
         }
-
+        
+        System.out.println("Thank you for playing Tic-Tac-Toe!");
         scanner.close();
     }
 }
