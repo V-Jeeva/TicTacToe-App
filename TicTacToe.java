@@ -1,8 +1,9 @@
 import java.util.Random;
+import java.util.Scanner; // Imported for UC3
 
 public class TicTacToe {
     
-    // Game State Variables for UC2
+    // Game State Variables
     static String currentPlayer;
     static char playerSymbol;
     static char computerSymbol;
@@ -25,14 +26,14 @@ public class TicTacToe {
             }
             System.out.println();
         }
-        System.out.println(); // Extra line for better spacing
+        System.out.println();
     }
 
     // UC2: Toss to decide who plays first
     public static void tossToDecideFirst() {
         System.out.println("Tossing a coin to decide who plays first...");
         Random random = new Random();
-        int toss = random.nextInt(2); // Generates 0 or 1
+        int toss = random.nextInt(2);
 
         if (toss == 0) {
             currentPlayer = "Human";
@@ -47,13 +48,36 @@ public class TicTacToe {
         }
     }
 
+    // UC3: Accept User Slot Input (1-9)[cite: 10]
+    public static int getUserInput(Scanner scanner) {
+        System.out.print("Enter a slot number (1-9): ");
+        // Read integer input from the user[cite: 10]
+        int slot = scanner.nextInt(); 
+        // Return the slot value back to the game logic[cite: 10]
+        return slot; 
+    }
+
     public static void main(String[] args) {
-        // Setup Board (UC1)
+        // Create scanner for user input
+        Scanner scanner = new Scanner(System.in);
+
+        // UC1
         char[][] board = new char[3][3];
         initializeBoard(board);
         printBoard(board);
         
-        // Perform Toss (UC2)
+        // UC2
         tossToDecideFirst();
+
+        // Testing UC3: Ask for input just to prove it works!
+        if (currentPlayer.equals("Human")) {
+            int chosenSlot = getUserInput(scanner);
+            System.out.println("Awesome, you selected slot: " + chosenSlot);
+        } else {
+            System.out.println("Computer is thinking...");
+        }
+
+        // Close scanner at the very end of the program
+        scanner.close();
     }
 }
