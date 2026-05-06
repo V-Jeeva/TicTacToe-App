@@ -51,41 +51,66 @@ public class TicTacToe {
     // UC3: Accept User Slot Input (1-9)
     public static int getUserInput(Scanner scanner) {
         System.out.print("Enter a slot number (1-9): ");
-        int slot = scanner.nextInt(); 
-        return slot; 
+        return scanner.nextInt(); 
     }
 
-    // UC4: Convert Slot Number (1–9) to Board Index (Row, Column)[cite: 10]
+    // UC4: Convert Slot Number (1–9) to Board Index
     public static int[] convertSlotToIndices(int slot) {
-        // Adjust to zero-based indexing[cite: 10]
         int index = slot - 1; 
-        
-        // Mathematical Mapping using Division and Modulo[cite: 10]
         int row = index / 3;
         int col = index % 3;
-        
-        // Return the row & column generated as an array[cite: 10]
         return new int[]{row, col}; 
+    }
+
+    // UC5: Validate User Move[cite: 10]
+    public static boolean isValidMove(char[][] board, int row, int col) {
+        // Ensure the move is within bounds (0-2)[cite: 10]
+        if (row >= 0 && row <= 2 && col >= 0 && col <= 2) {
+            // Ensure the cell is completely empty[cite: 10]
+            if (board[row][col] == '-') {
+                return true; // Move accepted[cite: 10]
+            } else {
+                System.out.println("Invalid Move: That slot is already taken! Try again.");
+                return false; // Move rejected[cite: 10]
+            }
+        } else {
+            System.out.println("Invalid Move: Slot out of bounds! Please enter a number between 1 and 9.");
+            return false; // Move rejected[cite: 10]
+        }
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        // UC1
+        // Setup Board
         char[][] board = new char[3][3];
         initializeBoard(board);
+        
+        // Let's artificially fill a spot just to test our validation!
+        board[0][0] = 'X'; // Slot 1 is now taken
         printBoard(board);
         
-        // UC2
         tossToDecideFirst();
 
-        // Testing UC3 & UC4 integration
+        // Testing UC5 integration with a while loop
         if (currentPlayer.equals("Human")) {
-            int chosenSlot = getUserInput(scanner);
-            int[] indices = convertSlotToIndices(chosenSlot);
+            boolean valid = false;
             
-            System.out.println("Awesome, you selected slot: " + chosenSlot);
-            System.out.println("This converts to -> Row: " + indices[0] + ", Column: " + indices[1]);
+            // Keep asking until they give us a good move
+            while (!valid) {
+                int chosenSlot = getUserInput(scanner);
+                int[] indices = convertSlotToIndices(chosenSlot);
+                int row = indices[0];
+                int col = indices[1];
+                
+                // Perform validation[cite: 10]
+                if (isValidMove(board, row, col)) {
+                    System.out.println("Move accepted! Placing your symbol...");
+                    board[row][col] = playerSymbol; // Place the symbol
+                    printBoard(board);
+                    valid = true; // Exit the loop
+                }
+            }
         } else {
             System.out.println("Computer is thinking...");
         }
